@@ -1,19 +1,10 @@
-from datetime import datetime, date
-from sqlmodel import Enum, SQLModel, Field
+from sqlmodel import SQLModel, Field
 from typing import Optional
-from pydantic import EmailStr
 
-from app.models.todo import TodoList
-
-class StatusEnum(str, Enum):
-    wip = "WIP"
-    completado = "Completado"
-    blocker = "Blocker"
+from models.todo import TodoList
 
 class StatusBase(SQLModel):
-    name: StatusEnum
-    email: EmailStr = Field(unique=True)
-    role: str = Field(default="user")
+    name: str = Field(unique=True)
     color: Optional[str]
 
 class Status(StatusBase, table=True):

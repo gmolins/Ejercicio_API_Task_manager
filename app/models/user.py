@@ -1,8 +1,7 @@
-import datetime
+from datetime import datetime
 from sqlmodel import SQLModel, Field
-from typing import Optional
+from typing import Optional, List
 from pydantic import EmailStr
-from app.models.todo import TodoList
 
 class UserBase(SQLModel):
     username: str = Field(unique=True)
@@ -14,7 +13,7 @@ class User(UserBase, table=True):
     hashed_password: str
     refresh_token: Optional[str] = None
     created_at: datetime
-    todo_list: list[TodoList] = Field(foreign_key="todo_lists.id")
+    todo_list: Optional[List["TodoList"]] = Field(foreign_key="todo_lists.id")
 
 class UserCreate(UserBase):
     password: str
