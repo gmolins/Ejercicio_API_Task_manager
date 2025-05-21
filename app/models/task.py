@@ -1,19 +1,20 @@
 from datetime import datetime, date
-from sqlmodel import SQLModel, Field
-from typing import Optional, List
-
-from models.status import Status
-from models.todo import TodoList
+from sqlmodel import Relationship, SQLModel, Field
+from typing import Optional
 
 class TaskBase(SQLModel):
     title: str
     description: Optional[str]
-    due_date: Optional[date]
+    due_date: Optional[date] = None
 
 class Task(TaskBase, table=True):
-    id: int = Field(primary_key=True)
+    id: int = Field(default=None, primary_key=True)
     is_completed: bool
     created_at: datetime
-    todo_list_id: TodoList = Field(foreign_key="todo_lists.id")
-    status_id: Optional[Status] = Field(foreign_key="status.id")
+    todolist_id: int = Field(default=None, foreign_key="todolist.id")
 
+class TaskCreate(TaskBase):
+    todolist_id: int = Field(description="Todo-List ID cant be empty")
+
+class TaskRead(TaskBase):
+    id: int

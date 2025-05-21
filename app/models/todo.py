@@ -1,15 +1,19 @@
 from datetime import datetime
-from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship, SQLModel, Field
 from typing import Optional, List
-from models.user import User
-from models.task import Task
 
 class TodoBase(SQLModel):
     title: str
     description: Optional[str]
 
 class TodoList(TodoBase, table=True):
-    id: int = Field(primary_key=True)
+    id: int = Field(default=None, primary_key=True)
     created_at: datetime
-    owner_id: User = Field(foreign_key="users.id")
-    tasks: Optional[List[Task]] = Field(foreign_key="tasks.id")
+    user_id: int = Field(default=None, foreign_key="user.id")
+    user: Optional["User"] = Relationship(back_populates="todolist") # type: ignore
+
+class TodoCreate(TodoBase):
+    user_name: str = Field(..., min_length=3, max_length=100, description="User name cant be empty")
+
+class TodoRead(TodoBase):
+    id: int

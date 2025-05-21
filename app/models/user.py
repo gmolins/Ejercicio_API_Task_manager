@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlmodel import SQLModel, Field
-from typing import Optional, List
+from sqlmodel import Relationship, SQLModel, Field
+from typing import List, Optional
 from pydantic import EmailStr
 
 class UserBase(SQLModel):
@@ -9,11 +9,11 @@ class UserBase(SQLModel):
     role: str = Field(default="user")
 
 class User(UserBase, table=True):
-    id: int = Field(primary_key=True)
-    hashed_password: str
+    id: int = Field(default=None, primary_key=True)
     refresh_token: Optional[str] = None
+    hashed_password: str
     created_at: datetime
-    todo_list: Optional[List["TodoList"]] = Field(foreign_key="todo_lists.id")
+    todolist: List["TodoList"] | None = Relationship(back_populates="user") # type: ignore
 
 class UserCreate(UserBase):
     password: str
