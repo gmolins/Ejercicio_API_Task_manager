@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlmodel import Session, select
 
@@ -25,7 +26,7 @@ def create(task: TaskCreate, session: Session = Depends(get_session), current_us
             raise HTTPException(status_code=404, detail=f"Todo-List with ID '{task.todolist_id}' not found")
         
         # Create the task with the Todo-List ID
-        task_data = Task(**task.model_dump())
+        task_data = Task(**task.model_dump(), created_at=datetime.now())
         created_task = create_task(session, task_data)
         session.refresh(created_task)  # Refresh to load relationships
         return created_task

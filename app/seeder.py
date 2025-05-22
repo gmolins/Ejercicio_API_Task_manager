@@ -30,16 +30,6 @@ def seed_data(num_dummies=5):
         except Exception as e:
             print(f"Error creating todos: {e}")
 
-        # Crear tasks
-        try:
-            tasks = []
-            for k in range(num_dummies):
-                tasks.append(Task(title=f"Task {k}", description=f"Content for task {k}", is_completed=False, created_at=datetime.now(), todolist_id=k))
-            session.add_all(tasks)
-            session.commit()
-        except Exception as e:
-            print(f"Error creating tasks: {e}")
-        
         # Crear status
         try:
             status1 = Status(name=f"WIP", color=f"Blue")
@@ -49,6 +39,17 @@ def seed_data(num_dummies=5):
             session.commit()
         except Exception as e:
             print(f"Error creating status: {e}")
+
+        # Crear tasks
+        try:
+            tasks = []
+            for k in range(num_dummies):
+                tasks.append(Task(title=f"Task {k}", description=f"Content for task {k}", is_completed=False, created_at=datetime.now(), todolist_id=k+1, status_id=random.choice([1,2,3])))
+            session.add_all(tasks)
+            session.commit()
+        except Exception as e:
+            print(f"Error creating tasks: {e}")
+        
     print("Tables seeded successfully!")
 
 if __name__ == "__main__":
