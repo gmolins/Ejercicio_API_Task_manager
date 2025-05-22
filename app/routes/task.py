@@ -3,14 +3,15 @@ from sqlmodel import Session, select
 
 from db.database import get_session
 from models.task import Task, TaskRead, TaskCreate
-from models.todo import TodoList
 from crud.todo import get_todolist_by_id
-from crud.tasks import (
+from crud.task import (
     create_task,
+    delete_task,
     get_tasks,
     get_task_by_id,
     get_task_by_title,
-    get_tasks_from_todo_list
+    get_tasks_from_todo_list,
+    update_task,
 )
 from auth.dependencies import get_current_user, require_role  # Import role-based dependency
 
@@ -40,7 +41,7 @@ def read_all(session: Session = Depends(get_session), current_user: dict = Depen
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-@router.get("/{todolist_id}", response_model=TaskRead)
+@router.get("/{task_id}", response_model=TaskRead)
 def read(task_id: int, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
         task = get_task_by_id(session, task_id)
@@ -60,72 +61,44 @@ def read_by_title(title: str, session: Session = Depends(get_session), current_u
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-@router.get("/user/{user_name}", response_model=list[TaskRead])
-def read_by_user_name(todo_list_title: str, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+@router.get("/todo/{todo_list_id}", response_model=list[TaskRead])
+def read_by_todo_id(todo_list_id: int, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
-        todos = get_tasks_from_todo_list(session, todo_list_title)
-        if not todos:
-            raise HTTPException(status_code=404, detail=f"No Todo-Lists found for user '{todo_list_title}'")
-        return todos
+        tasks = get_tasks_from_todo_list(session, todo_list_id)
+        if not tasks:
+            raise HTTPException(status_code=404, detail=f"No Todo-Lists found for ID '{todo_list_id}'")
+        return tasks
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-@router.put("/{todo_id}", response_model=TodoList)
+@router.put("/{task_id}", response_model=Task)
 def update(
-    todo_id: int,
-    todo_data: dict = Body(
+    task_id: int,
+    task_data: dict = Body(
         ...,
-        example={
-            "title": "Updated Todo-List Title",
-            "content": "Updated content for the Todo-List"
-        }
+        examples=[
+            {
+                "title": "Updated Task Title",
+                "content": "Updated content for the Task"
+            }
+        ]
     ),
     session: Session = Depends(get_session),
 ):
     try:
-        updated_todo = update_todolist(session, todo_id, todo_data)
-        if not updated_todo:
-            raise HTTPException(status_code=404, detail=f"Todo-List with ID {todo_id} not found")
-        return updated_todo
+        updated_task = update_task(session, task_id, task_data)
+        if not updated_task:
+            raise HTTPException(status_code=404, detail=f"Task with ID {task_id} not found")
+        return updated_task
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-@router.put("/title/{title}", response_model=TodoList)
-def update_by_title(
-    title: str,
-    todo_data: dict = Body(
-        ...,
-        example={
-            "title": "Updated Todo-List Title",
-            "content": "Updated content for the Todo-List"
-        }
-    ),
-    session: Session = Depends(get_session),
-):
+@router.delete("/{task_id}", response_model=Task)
+def delete(task_id: int, session: Session = Depends(get_session), current_user: dict = Depends(require_role("admin"))):
     try:
-        updated_todo = update_todolist_by_title(session, title, todo_data)
-        if not updated_todo:
-            raise HTTPException(status_code=404, detail=f"Todo-List with title '{title}' not found")
-        return updated_todo
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
-@router.delete("/{todolist_id}", response_model=TodoList)
-def delete(todolist_id: int, session: Session = Depends(get_session), current_user: dict = Depends(require_role("admin"))):
-    try:
-        deleted_todolist = delete_todolist(session, todolist_id)
-        if not deleted_todolist:
-            raise HTTPException(status_code=404, detail=f"Todo-List with ID {todolist_id} not found")
-        return deleted_todolist
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
-@router.delete("/title/{title}", response_model=TodoList)
-def delete_by_title(title: str, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
-    try:
-        deleted_todolist = delete_todolist_by_title(session, title)
-        if not deleted_todolist:
-            raise HTTPException(status_code=404, detail=f"Todo-List with title '{title}' not found")
-        return deleted_todolist
+        deleted_task = delete_task(session, task_id)
+        if not deleted_task:
+            raise HTTPException(status_code=404, detail=f"Task with ID {task_id} not found")
+        return deleted_task
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")

@@ -6,5 +6,5 @@ class StatusBase(SQLModel):
     color: Optional[str]
 
 class Status(StatusBase, table=True):
-    id: int = Field(primary_key=True)
+    id: int = Field(default=None, primary_key=True)
 

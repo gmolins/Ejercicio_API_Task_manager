@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlmodel import Session, select
 
@@ -29,7 +30,7 @@ def create(todo: TodoCreate, session: Session = Depends(get_session)):
             raise HTTPException(status_code=404, detail=f"User with name '{todo.user_name}' not found")
         
         # Create the entry with the user's ID
-        todo_data = TodoList(**todo.model_dump(exclude={"user_name"}), user_id=user.id)
+        todo_data = TodoList(**todo.model_dump(exclude={"user_name"}), user_id=user.id, created_at=datetime.now())
         created_todo = create_todolist(session, todo_data)
         session.refresh(created_todo)  # Refresh to load relationships
         return created_todo
@@ -80,10 +81,12 @@ def update(
     todo_id: int,
     todo_data: dict = Body(
         ...,
-        example={
-            "title": "Updated Todo-List Title",
-            "content": "Updated content for the Todo-List"
-        }
+        examples=[
+            {
+                "title": "Updated Todo-List Title",
+                "content": "Updated content for the Todo-List"
+            }
+        ]
     ),
     session: Session = Depends(get_session),
 ):
@@ -100,10 +103,12 @@ def update_by_title(
     title: str,
     todo_data: dict = Body(
         ...,
-        example={
-            "title": "Updated Todo-List Title",
-            "content": "Updated content for the Todo-List"
-        }
+        examples=[
+            {
+                "title": "Updated Todo-List Title",
+                "content": "Updated content for the Todo-List"
+            }
+        ]
     ),
     session: Session = Depends(get_session),
 ):

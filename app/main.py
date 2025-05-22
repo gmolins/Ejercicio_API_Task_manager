@@ -1,10 +1,11 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.templating import Jinja2Templates
-from db.database import create_db_and_tables
+from auth.dependencies import get_current_user
 from dotenv import load_dotenv
+
+from routes import auth, task, todo, user
 
 import uvicorn
 
@@ -15,10 +16,18 @@ app = FastAPI()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-# Definir las rutas de la API
-app.include_router(users.router, prefix="/api/authors", tags=["Authors"])
-app.include_router(entry.router, prefix="/api/entries", tags=["Entries"])
+# Configuración de Jinja2
+templates = Jinja2Templates(directory="templates")
+
+# Definir las rutas de la APIs
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(task.router, prefix="/api/tasks", tags=["Tasks"])
+app.include_router(todo.router, prefix="/api/todos", tags=["Todo-Lists"])
+app.include_router(user.router, prefix="/api/users", tags=["Users"])
+
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
+    return templates.TemplateResponse("forgot_password.html", {"request": request})
 
 # Protect existing routes
 @app.get("/protected-route")

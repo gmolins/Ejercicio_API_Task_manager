@@ -57,10 +57,10 @@ def update(
     user_id: int,
     user_data: dict = Body(
         ...,
-        example={
+        examples=[{
             "name": "Updated User Name",
             "email": "updated_email@example.com"
-        }
+        }]
     ),
     session: Session = Depends(get_session),
 ):
@@ -77,10 +77,10 @@ def update_by_name(
     name: str,
     user_data: dict = Body(
         ...,
-        example={
+        examples=[{
             "name": "Updated User Name",
             "email": "updated_email@example.com"
-        }
+        }]
     ),
     session: Session = Depends(get_session),
 ):
