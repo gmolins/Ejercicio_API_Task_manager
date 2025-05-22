@@ -10,3 +10,8 @@ class Status(StatusBase, table=True):
 
     task: Optional["Task"] = Relationship(back_populates="status", cascade_delete=True) # type: ignore
 
+class StatusCreate(StatusBase):
+    pass
+
+class StatusRead(StatusBase):
+    id: int
