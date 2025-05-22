@@ -13,7 +13,7 @@ class User(UserBase, table=True):
     refresh_token: Optional[str] = None
     hashed_password: str
     created_at: datetime
-    todolist: List["TodoList"] | None = Relationship(back_populates="user") # type: ignore
+    todolist: List["TodoList"] | None = Relationship(back_populates="user", cascade_delete=True) # type: ignore
 
 class UserCreate(UserBase):
     password: str

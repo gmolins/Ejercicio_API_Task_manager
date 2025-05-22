@@ -18,7 +18,7 @@ from auth.dependencies import get_current_user, require_role  # Import role-base
 router = APIRouter()
 
 @router.post("/", response_model=TaskRead)
-def create(task: TaskCreate, session: Session = Depends(get_session)):
+def create(task: TaskCreate, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
         todo = get_todolist_by_id(session, task.todolist_id)
         if not todo:
@@ -35,14 +35,14 @@ def create(task: TaskCreate, session: Session = Depends(get_session)):
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/", response_model=list[TaskRead])
-def read_all(session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read_all(session: Session = Depends(get_session)):
     try:
         return get_tasks(session)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/{task_id}", response_model=TaskRead)
-def read(task_id: int, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read(task_id: int, session: Session = Depends(get_session)):
     try:
         task = get_task_by_id(session, task_id)
         if not task:
@@ -52,7 +52,7 @@ def read(task_id: int, session: Session = Depends(get_session), current_user: di
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/title/{title}", response_model=TaskRead)
-def read_by_title(title: str, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read_by_title(title: str, session: Session = Depends(get_session)):
     try:
         todolist = get_task_by_title(session, title)
         if not todolist:
@@ -62,7 +62,7 @@ def read_by_title(title: str, session: Session = Depends(get_session), current_u
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/todo/{todo_list_id}", response_model=list[TaskRead])
-def read_by_todo_id(todo_list_id: int, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read_by_todo_id(todo_list_id: int, session: Session = Depends(get_session)):
     try:
         tasks = get_tasks_from_todo_list(session, todo_list_id)
         if not tasks:
@@ -84,6 +84,7 @@ def update(
         ]
     ),
     session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ):
     try:
         updated_task = update_task(session, task_id, task_data)

@@ -11,7 +11,7 @@ class Task(TaskBase, table=True):
     id: int = Field(default=None, primary_key=True)
     is_completed: bool
     created_at: datetime
-    todolist_id: int = Field(default=None, foreign_key="todolist.id")
+    todolist_id: int = Field(default=None, foreign_key="todolist.id", ondelete="CASCADE")
 
 class TaskCreate(TaskBase):
     todolist_id: int = Field(description="Todo-List ID cant be empty")

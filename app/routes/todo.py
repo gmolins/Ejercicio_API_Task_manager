@@ -22,7 +22,7 @@ from auth.dependencies import get_current_user, require_role  # Import role-base
 router = APIRouter()
 
 @router.post("/", response_model=TodoRead)
-def create(todo: TodoCreate, session: Session = Depends(get_session)):
+def create(todo: TodoCreate, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
         # Use the function from CRUD to get the user by name
         user = get_user_by_name(session, todo.user_name)
@@ -40,14 +40,14 @@ def create(todo: TodoCreate, session: Session = Depends(get_session)):
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/", response_model=list[TodoRead])
-def read_all(session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read_all(session: Session = Depends(get_session)):
     try:
         return get_todos(session)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/{todolist_id}", response_model=TodoRead)
-def read(todolist_id: int, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read(todolist_id: int, session: Session = Depends(get_session)):
     try:
         todolist = get_todolist_by_id(session, todolist_id)
         if not todolist:
@@ -57,7 +57,7 @@ def read(todolist_id: int, session: Session = Depends(get_session), current_user
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/title/{title}", response_model=TodoRead)
-def read_by_title(title: str, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read_by_title(title: str, session: Session = Depends(get_session)):
     try:
         todolist = get_todolist_by_title(session, title)
         if not todolist:
@@ -67,7 +67,7 @@ def read_by_title(title: str, session: Session = Depends(get_session), current_u
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/user/{user_name}", response_model=list[TodoRead])
-def read_by_user_name(user_name: str, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def read_by_user_name(user_name: str, session: Session = Depends(get_session)):
     try:
         todos = get_todos_by_user_name(session, user_name)
         if not todos:
@@ -89,6 +89,7 @@ def update(
         ]
     ),
     session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ):
     try:
         updated_todo = update_todolist(session, todo_id, todo_data)
@@ -111,6 +112,7 @@ def update_by_title(
         ]
     ),
     session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ):
     try:
         updated_todo = update_todolist_by_title(session, title, todo_data)

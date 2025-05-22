@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlmodel import Session
+from auth.dependencies import get_current_user
 from db.database import get_session
 from models.user import User, UserCreate
 from crud.user import (
@@ -16,7 +17,7 @@ from crud.user import (
 router = APIRouter()
 
 @router.post("/users", response_model=User)
-def create(user: UserCreate, session: Session = Depends(get_session)):
+def create(user: UserCreate, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
         user_data = User(**user.model_dump())
         return create_user(session, user_data)
@@ -63,6 +64,7 @@ def update(
         }]
     ),
     session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ):
     try:
         updated_user = update_user(session, user_id, user_data)
@@ -83,6 +85,7 @@ def update_by_name(
         }]
     ),
     session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ):
     try:
         updated_user = update_user_by_name(session, name, user_data)
@@ -93,7 +96,7 @@ def update_by_name(
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.delete("/{user_id}", response_model=User)
-def delete(user_id: int, session: Session = Depends(get_session)):
+def delete(user_id: int, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
         deleted_user = delete_user(session, user_id)
         if not deleted_user:
@@ -103,7 +106,7 @@ def delete(user_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.delete("/name/{name}", response_model=User)
-def delete_by_name(name: str, session: Session = Depends(get_session)):
+def delete_by_name(name: str, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
         deleted_user = delete_user_by_name(session, name)
         if not deleted_user:
