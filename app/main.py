@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from auth.dependencies import get_current_user
 from dotenv import load_dotenv
 
-from routes import auth, task, todo, user
+from routes import auth, task, todo, user, status
 
 import uvicorn
 
@@ -24,7 +24,9 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(task.router, prefix="/api/tasks", tags=["Tasks"])
 app.include_router(todo.router, prefix="/api/todos", tags=["Todo-Lists"])
 app.include_router(user.router, prefix="/api/users", tags=["Users"])
+app.include_router(status.router, prefix="/api/status", tags=["Status"])
 
+@app.get("/", response_class=HTMLResponse)
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
     return templates.TemplateResponse("forgot_password.html", {"request": request})

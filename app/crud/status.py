@@ -16,7 +16,11 @@ def get_status(session: Session):
 def get_status_by_id(session: Session, status_id: int):
     return session.get(Status, status_id)
 
-def update_status(session: Session, status_id: int, status_data: dict):
+def get_status_by_name(session: Session, name: str):
+    statement = select(Status).where(Status.name == name)
+    return session.exec(statement).first()
+
+def update_status_by_id(session: Session, status_id: int, status_data: dict):
     status = session.get(Status, status_id)
     if not status:
         return None

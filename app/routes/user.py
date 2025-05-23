@@ -1,8 +1,10 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlmodel import Session
-from auth.dependencies import get_current_user
+from auth.dependencies import get_current_user, require_role
 from db.database import get_session
 from models.user import User, UserCreate
+from auth.hashing import hash_password
 from crud.user import (
     create_user,
     get_users,
@@ -19,7 +21,7 @@ router = APIRouter()
 @router.post("/users", response_model=User)
 def create(user: UserCreate, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
     try:
-        user_data = User(**user.model_dump())
+        user_data = User(**user.model_dump(exclude={"password"}), hashed_password=hash_password(user.password), created_at=datetime.now())
         return create_user(session, user_data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
