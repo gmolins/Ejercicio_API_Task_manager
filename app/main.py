@@ -4,7 +4,9 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.templating import Jinja2Templates
 from auth.dependencies import get_current_user
 from dotenv import load_dotenv
-
+from log.logger import logger
+from log.middleware import log_middleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from routes import auth, task, todo, user, status
 
 import uvicorn
@@ -13,6 +15,11 @@ import uvicorn
 load_dotenv()
 
 app = FastAPI()
+
+# Add our logging middleware
+app.add_middleware(BaseHTTPMiddleware, dispatch=log_middleware)
+
+logger.info('Starting API...')
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 

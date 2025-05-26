@@ -16,7 +16,7 @@ from auth.dependencies import get_current_user, require_role  # Import role-base
 router = APIRouter()
 
 @router.post("/", response_model=StatusRead)
-def create(status: StatusCreate, session: Session = Depends(get_session), current_user: dict = Depends(get_current_user)):
+def create(status: StatusCreate, session: Session = Depends(get_session), current_user: dict = Depends(require_role("admin"))):
     try:
         status_data = Status(**status.model_dump())
         created_status = create_status(session, status_data)
@@ -67,7 +67,7 @@ def update(
         ]
     ),
     session: Session = Depends(get_session),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_role("admin"))
 ):
     try:
         updated_status = update_status_by_id(session, status_id, status_data)
