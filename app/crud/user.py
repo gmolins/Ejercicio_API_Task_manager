@@ -11,8 +11,11 @@ def create_user(session: Session, user: User):
     session.refresh(user)
     return user
 
-def get_users(session: Session):
+def get_all_users(session: Session):
     return session.exec(select(User)).all()
+
+def get_all_users_wp(session: Session, skip: int = 0, limit: int = 10):
+    return session.exec(select(User).offset(skip).limit(limit)).all()
 
 def get_user_by_id(session: Session, user_id: int):
     return session.get(User, user_id)
@@ -25,7 +28,7 @@ def get_user_by_mail(session: Session, mail: EmailStr):
     statement = select(User).where(User.email == mail)
     return session.exec(statement).first()
 
-def update_user(session: Session, user_id: int, user_data: dict):
+def update_user_by_id(session: Session, user_id: int, user_data: dict):
     user = session.get(User, user_id)
     if not user:
         return None
@@ -46,7 +49,7 @@ def update_user_by_name(session: Session, name: str, user_data: dict):
     session.refresh(user)
     return user
 
-def delete_user(session: Session, user_id: int):
+def delete_user_by_id(session: Session, user_id: int):
     user = session.get(User, user_id)
     if user:
         session.delete(user)
