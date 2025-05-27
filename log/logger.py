@@ -9,7 +9,7 @@ formatter = logging.Formatter(
 )
 
 # Log to file
-file_handler = logging.FileHandler("./app/log/app.log")
+file_handler = logging.FileHandler("./log/app.log")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
