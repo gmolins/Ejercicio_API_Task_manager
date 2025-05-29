@@ -1,7 +1,7 @@
 import redis
 
 # Conexión simple, ajusta según configuración real
-r = redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
+r = redis.Redis(host="127.0.0.1", port=6379, db=0, decode_responses=True)
 
 def revoke_token(jti: str, exp: int):
     """Guarda el token revocado en Redis hasta su expiración."""
