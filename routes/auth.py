@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlmodel import Session
-from auth.jwt import create_access_token, create_refresh_token, decode_refresh_token, revoke_token, decode_access_token
+from auth.jwt import create_access_token, create_refresh_token, decode_access_token, decode_refresh_token, revoke_token
 from auth.hashing import hash_password, verify_password
 from db.database import get_session
 from auth.dependencies import get_current_user, oauth2_scheme
